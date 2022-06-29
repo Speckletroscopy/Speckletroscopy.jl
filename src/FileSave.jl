@@ -117,7 +117,7 @@ function tabulate(sim::SpeckleSim)
     simDict[:bst] = [sim.bs.t]
     simDict[:bsr] = [sim.bs.r]
     simDict[:elapsed] = [sim.elapsed]
-    return table(simDict; pkey=:id)
+    return DataFrame(simDict; pkey=:id)
 end
 
 function tabulate(simvec::Vector{T}) where {T<:SpeckleSim}
@@ -139,13 +139,14 @@ export tabulate
 # Save functions
 ################################################################################
 function save(sim::SpeckleSim)
+    # save the simulation to the results directory
     for i = 1:length(sim.readout)
-        
         beamDict = Dict(:b1=>sim.readout[i].beam1, :b2=>sim.readout[i].beam2)
-        beamTbl  = table(beamDict)
+        beamTbl  = DataFrame(beamDict)
         beamName = string("counts",i,".csv")
         beamPath = joinpath(dataDir(sim),beamName)
-        JuliaDB.save(beamTbl,beamPath)
+        CSV.write(beamPath,beamTbl)
+        println("Saving readout ",i)
 
         corrDict = Dict{Symbol,Vector}()
         if typeof(sim.corr[i]) <: CorrelationVector
@@ -155,10 +156,10 @@ function save(sim::SpeckleSim)
                 corrDict[Symbol(j)] = sim.corr[i].data[:,j]
             end
         end
-        corrTbl = table(corrDict)
+        corrTbl = DataFrame(corrDict)
         corrName = string("correlation",i,".csv")
         corrPath = joinpath(dataDir(sim),corrName)
-        JuliaDB.save(corrTbl,corrPath)
+        CSV.write(corrPath,corrTbl)
     end
     @info "Saved data for simulation id: $(sim.id)"
     return nothing
@@ -169,23 +170,23 @@ end
 function save(sfft::SpeckleFFT)
     for (i,single) in enumerate(sfft.singles)
         singleDict = Dict(:frequency=>sfft.freqs, :coefficient=>single)
-        singleTable = table(singleDict)
+        singleTable = DataFrame(singleDict)
         singleName = string("singleft",i,".csv")
         singlePath = joinpath(dataDir(sfft.id),singleName)
-        JuliaDB.save(singleTable,singlePath)
+        DataFrame.write(singleTable,singlePath)
     end
 
     sumFFTdict = Dict(:frequency=>sfft.freqs,:coefficient=>sfft.sumFFT)
-    sumFFTtable = table(sumFFTdict)
+    sumFFTtable = DataFrame(sumFFTdict)
     sumFFTname = "sumFFT.csv"
     sumFFTpath = joinpath(dataDir(sfft.id),sumFFTname)
-    JuliaDB.save(sumFFTtable,sumFFTpath)
+    DataFrame.write(sumFFTtable,sumFFTpath)
 
     FFTsumdict = Dict(:frequency=>sfft.freqs,:coefficient=>sfft.FFTsum)
-    FFTsumtable = table(FFTsumdict)
+    FFTsumtable = DataFrame(FFTsumdict)
     FFTsumname = "FFTsum.csv"
     FFTsumpath = joinpath(dataDir(sfft.id),FFTsumname)
-    JuliaDB.save(FFTsumtable,FFTsumpath)
+    DataFrame.write(FFTsumtable,FFTsumpath)
 end
 
 #-------------------------------------------------------------------------------

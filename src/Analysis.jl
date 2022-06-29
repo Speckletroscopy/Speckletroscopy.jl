@@ -246,7 +246,7 @@ function snr(sfft::SpeckleFFT,params::SpeckleParams)
         end
 
         # convert dictionary to table and return
-        return table(snrDict)
+        return DataFrame(snrDict)
 
     else
         return nothing

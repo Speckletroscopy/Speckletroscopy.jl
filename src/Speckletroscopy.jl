@@ -1,12 +1,13 @@
 module Speckletroscopy
 
 using Reexport
-@reexport using JuliaDB
+@reexport using DataFrames
 @reexport using UUIDs
 @reexport using Dates
 @reexport using Logging
 @reexport using LaTeXStrings
 @reexport using Plots
+@reexport using DataFrames
 @reexport using Random
 @reexport using StatsBase
 @reexport using Distributions
@@ -17,6 +18,7 @@ using Reexport
 @reexport using FFTW
 @reexport using DSP
 @reexport using Measurements
+@reexport using IndexedTables
 using CatViews
 using LsqFit
 
@@ -45,7 +47,7 @@ function load_simdb(;results_dir::String = results_directory)
     dbpath = joinpath(resultsDir(),"simdb.csv")
     if isfile(dbpath)
         # load the simulation database file if it exists
-        global simdb = JuliaDB.load(dbpath)
+        global simdb = DataFrame(CSV.file(dbpath))
     else
         # set it to nothing if it doesn't exists so we can make a new one later
         global simdb = nothing
@@ -68,6 +70,7 @@ function run(instance::SpeckleInstance)
     corr = correlate1d(readout,1,nwindow)
     return readout,corr
 end
+
 
 """
     function run(params::SpeckleParams)
@@ -103,11 +106,15 @@ function run(params::SpeckleParams)
     sim = SpeckleSim(dt,id,params,bs,simtime,readout,corr)
     @info "Run $id took $simtime seconds"
 
+    println(length(sim))
+
     # *** SAVE RESULTS TO DATABASE ***
     # make a directory to store results from this run
     results_data = joinpath(resultsDir(),string(id),"data")
+    println(results_data)
     mkpath(results_data)
     results_plots = joinpath(resultsDir(),string(id),"plots")
+    println(results_plots)
     mkpath(results_plots)
     save(sim)
 
@@ -166,7 +173,7 @@ function run(allparams::Dict; results_dir::String = results_directory)
             snrDict[nameSym] = val
         end
         snrDict[:id] = [id]
-        out = table(snrDict,pkey=:id)
+        out = DataFrame(snrDict; pkey=:id)
         @assert length(out) == 1 "Something went wrong"
         return out
     end
@@ -201,7 +208,7 @@ function run(allparams::Dict; results_dir::String = results_directory)
     end
 
     # save the database to file and return the results
-    JuliaDB.save(simdb,dbpath)
+    DataFrame.write(simdb,dbpath)
     return simTbl
 end
 export run
@@ -217,7 +224,7 @@ function get_simdb(;results_dir::String = results_directory)
         load_simdb(results_dir)
         # if the simulation database file does not exist, return an empty table
         if simdb === nothing
-            return table()
+            return DataFrame()
         end
     end
     return simdb
