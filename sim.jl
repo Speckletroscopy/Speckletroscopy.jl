@@ -23,9 +23,11 @@ function runsim()
                     :reinstance => [true] # control whether or not frequencies and phases should be reinstanced between measurements
                     )
 
-    test = SpeckleParamsVector(paramDict)
-    println(test[1])
-    Speckletroscopy.run(test[1])
+    paramDictVec = SpeckleParamsVector(paramDict)
+    instances = SpeckleInstance.(paramDictVec)
+    field = eField(instances[3].source,42)
+    meanIntensity(0.1,0.05,field)
+    
 end
 export runsim
 

@@ -197,6 +197,34 @@ end
 
 export intensity
 
+
+# TODO make this more efficient!
+function meanIntensity(t::Number,Δt::Number,field::eField)
+	# generate frequencies
+	ωmn = transpose(field.νn) .+ Δm(field.source)
+    ωmn .*= 2*π
+    ωmn = collect(ivec(ωmn))
+
+    ϕmn = collect(ivec(field.ϕmn))
+
+    em  = ones(size(field.ϕmn))
+    em = field.source.Em .* em
+    em = collect(ivec(em))
+
+    tot = 0.0
+    for (i,ωi) in enumerate(ωmn)
+        for(j,ωj) in enumerate(ωmn)
+            ei = em[i]*exp(-im*t*ωi + im*ϕmn[i])
+            ej = em[j]*exp(-im*t*ωj + im*ϕmn[j])
+            oscterm = ωi-ωj == 0 ? 1.0 : (1-exp(-im*Δt*(ωi-ωj)))/(im*(ωi-ωj))
+            tot += ei*conj(ej)*oscterm        
+        end
+    end
+
+    return real(tot)
+end
+
+export meanIntensity
 #-------------------------------------------------------------------------------
 
 """

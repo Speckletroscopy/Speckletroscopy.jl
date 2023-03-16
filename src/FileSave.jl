@@ -146,7 +146,6 @@ function save(sim::SpeckleSim)
         beamName = string("counts",i,".csv")
         beamPath = joinpath(dataDir(sim),beamName)
         CSV.write(beamPath,beamTbl)
-        println("Saving readout ",i)
 
         corrDict = Dict{Symbol,Vector}()
         if typeof(sim.corr[i]) <: CorrelationVector
