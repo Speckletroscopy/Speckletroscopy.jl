@@ -56,10 +56,21 @@ struct SpeckleParams{T<:Float64}
     window::T # Duration of time averaging in nanoseconds
     repeat::Integer # T of times to repeat correlation measurement
     reinstance::Bool # Randomize frequencies and phases after each repeat
-    function SpeckleParams{T}(n::Integer, νm::Vector{T}, Em::Vector{T}, σ::T, 
-                              fγ::T, deadtime::T, resolution::T, jitter::T,
-                              efficiency::T, darkcounts::T, duration::T,
-                              window::T, repeat::Integer, reinstance::Bool) where T<:Float64
+    function SpeckleParams{T}(
+        n::Integer,
+        νm::Vector{T},
+        Em::Vector{T}, σ::T, 
+        fγ::T,
+        deadtime::T,
+        resolution::T,
+        jitter::T,
+        efficiency::T,
+        darkcounts::T,
+        duration::T,
+        window::T,
+        repeat::Integer,
+        reinstance::Bool) where {T<:Float64}
+
         @assert length(νm) == length(Em) "Line magnitudes and frequencies must match lengths"
         new(n, νm, Em, σ, fγ, deadtime, resolution, jitter, efficiency,
             darkcounts, duration, window, repeat, reinstance)

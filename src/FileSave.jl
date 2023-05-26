@@ -189,8 +189,8 @@ function save(sfft::SpeckleFFT)
 end
 
 #-------------------------------------------------------------------------------
-function save(plt::Plots.Plot,name::String,sim::SpeckleSim)
-    figPath = joinpath(plotsDir(sim),name)
-    savefig(plt,figPath)
-    @info "Saved $name in $(plotsDir(sim))"
-end
+# function save(plt::Plots.Plot,name::String,sim::SpeckleSim)
+#     figPath = joinpath(plotsDir(sim),name)
+#     savefig(plt,figPath)
+#     @info "Saved $name in $(plotsDir(sim))"
+# end

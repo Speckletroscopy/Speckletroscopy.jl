@@ -6,7 +6,7 @@ using Reexport
 @reexport using Dates
 @reexport using Logging
 @reexport using LaTeXStrings
-@reexport using Plots
+@reexport using CairoMakie
 @reexport using DataFrames
 @reexport using Random
 @reexport using StatsBase
@@ -33,7 +33,7 @@ include("Correlation.jl")
 include("SimulationFlow.jl")
 include("Analysis.jl")
 include("Strings.jl")
-include("Plots.jl")
+# include("Plots.jl")
 include("FileSave.jl")
 
 #-------------------------------------------------------------------------------
