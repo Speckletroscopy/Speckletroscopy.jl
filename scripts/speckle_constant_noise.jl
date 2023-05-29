@@ -71,14 +71,14 @@ ax = Axis(fig[1, 1],
 low_cut = 10
 high_cut = 0
 
-# lines!(τvals[low_cut:(end-high_cut)],bigG2_mean[low_cut:(end-high_cut)], label=L"g^{(2)}(\tau)")
-# lines!(τvals[low_cut:(end-high_cut)],bigG2_std[low_cut:(end-high_cut)], label=L"$Δg^{(2)}(\tau)$") 
+lines!(τvals[low_cut:(end-high_cut)],bigG2_mean[low_cut:(end-high_cut)], label=L"g^{(2)}(\tau)")
+lines!(τvals[low_cut:(end-high_cut)],bigG2_std[low_cut:(end-high_cut)], label=L"$Δg^{(2)}(\tau)$") 
 lines!(τvals[low_cut:(end-high_cut)], map(τ->g2Calc(τ,paramVec[nn]),τvals[low_cut:(end-high_cut)]), label=L"$g^{(2)}_{calc}(\tau)$") 
 
 
 
 
-# hlines!(ax,sqrt(3.0),color=:red, label = L"\sqrt{3}")
+hlines!(ax,sqrt(3.0),color=:red, label = L"\sqrt{3}")
 
 axislegend()
 

@@ -1,3 +1,19 @@
+function copy_ticks(sp::Plots.Subplot)
+	ptx = twinx(sp)
+	plot!(ptx,xlims=xlims(sp),ylims=ylims(sp),xformatter=_->"",yformatter=_->"")
+	pty = twiny(sp)
+	plot!(pty,xlims=xlims(sp),ylims=ylims(sp),xformatter=_->"",yformatter=_->"")
+end
+
+"""
+	copy_ticks(plt::Plots.Plot = current())
+	
+Call `copy_ticks()` in same cell as plot function in order to get ticks on all sides
+"""
+copy_ticks(plt::Plots.Plot = current()) = copy_ticks(plt[1])
+
+export copy_ticks
+
 
 # #-------------------------------------------------------------------------------
 # """

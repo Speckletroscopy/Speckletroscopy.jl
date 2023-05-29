@@ -387,7 +387,7 @@ function g2Calc(τ::Number,source::LightSource)
     term3 = sum(em2 .* exp.(-im*2*π*τ*Δm(source)))/sumEm2
     term3 *= conj(term3)
     term3 = real(term3)
-    term3 *= stauAvg(τ,source)/n^2
+    term3 *= stauAvg(τ,2*π*source.σ, n)/n^2
 
     return g2τ+term3
 end
