@@ -38,7 +38,7 @@ cut_low = 100
 mean_g2 = mean(g2_vals[cut_low:end])
 mean_std_g2 = mean(std_g2_vals[cut_low:end])
 
-plot(τ_vals, g2_vals, label = "\$g^{(2)}(\\tau)\$")
+plot(τ_vals, g2_vals, ylims = (0,5), label = "\$g^{(2)}(\\tau)\$")
 plot!(τ_vals, std_g2_vals, label = "\$\\delta g^{(2)}(\\tau)\$")
 plot!(τ_vals, g2_calc, label = "\$g^{(2)}_{calc}(\\tau)\$", color = :black, linestyle = :dash)
 hline!([sqrt(3)], label = "\$\\sqrt{3}\$", linestyle = :dot)
