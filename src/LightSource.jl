@@ -11,6 +11,11 @@ end
 export σTemp
 #-------------------------------------------------------------------------------
 
+"""
+    LightSource(n::Integer,Em::Vector,νm::Vector,σ::Number,νMin::Number,νMax::Number,γRate::Number)
+
+Container for light source information.
+"""
 struct LightSource
     n::Integer # number of atoms
     Em::Vector # line magnitudes
@@ -197,6 +202,19 @@ end
 
 export intensity
 
+#-------------------------------------------------------------------------------
+"""
+    ibar(field::eField)
+
+Returns the long-time averaged intensity
+"""
+function ibar(source::LightSource)
+    line_contrib = sum(x->real(x*conj(x)),source.Em)
+    return source.n*line_contrib
+end
+
+export ibar
+#-------------------------------------------------------------------------------
 
 # TODO make this more efficient!
 function meanIntensity(t::Number,Δt::Number,field::eField)

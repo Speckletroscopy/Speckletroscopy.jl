@@ -15,9 +15,14 @@ light_source_dict = Dict(
 )
 light_source = LightSource(light_source_dict)
 
+# mean intensity
+ibar = light_source.n*sum(x->real(x*conj(x)),light_source.Em)
+
+
 time_vals = collect(0:0.001:20) # time in ns
 τ_vals = collect(0:0.001:1) # offset in ns
 
+g2_calc = map(τ->g2Calc(τ,light_source),τ_vals)
 
 
 # define sample sizes
@@ -27,9 +32,8 @@ sample_size = round.(Int,sample_size)
 
 cut_low = 100 # low cut on τ to get beyond standard correlated regime
 
-ninstances = 100 
-
-correlation_var_array = SharedArray{Float64}(length(sample_size),ninstances)
+ninstances = 500 
+normalized_mean_correlation_residual_std_array = SharedArray{Float64}(length(sample_size),ninstances)
 
 @info "Calculating $(ninstances) instances"
 @sync @distributed for inst in 1:ninstances
@@ -38,34 +42,30 @@ correlation_var_array = SharedArray{Float64}(length(sample_size),ninstances)
     efield_vals = map(t->eFieldT(t,e_field),time_vals)
     intensity_vals = map(et->intensity(et),efield_vals)
 
-    # mean intensity
-    ibar = mean(intensity_vals)
-
-    normalized_mean_correlation_var = ones(length(sample_size))
+    normalized_mean_correlation_residuals_std = ones(length(sample_size))
     # iterate over sample size
     for (k,nsamples) in enumerate(sample_size)
-        # correlation_avg = ones(length(τ_vals))
-        correlation_var = ones(length(τ_vals))
+        correlation_avg = ones(length(τ_vals))
         for i in 0:(length(τ_vals)-1) # iterate over τ
             correlation = map(j->intensity_vals[j]*intensity_vals[j+i],1:nsamples)
-            # correlation_avg[i+1] = mean(correlation)
-            correlation_var[i+1] = var(correlation)
+            correlation_avg[i+1] = mean(correlation)
         end
-        # take the mean value of the variance after low cut on τ
-        normalized_mean_correlation_var[k] = mean(correlation_var[cut_low:end])/ibar^4
+        # calculate residuals compared to g2_calc
+        residuals = correlation_avg/ibar^2 .- g2_calc
+        normalized_mean_correlation_residuals_std[k]= std(residuals)
     end
-    correlation_var_array[:,inst] = normalized_mean_correlation_var
+    normalized_mean_correlation_residual_std_array[:,inst] = normalized_mean_correlation_residuals_std
 end
 
-mean_var_correlation = map(k->mean(correlation_var_array[k,:]),1:length(sample_size))
-std_var_correlation = map(k->std(correlation_var_array[k,:]),1:length(sample_size))
+g2_residual_mean_by_samples = map(k->mean(normalized_mean_correlation_residual_std_array[k,:]),1:length(sample_size))
+g2_residual_std_by_samples= map(k->std(normalized_mean_correlation_residual_std_array[k,:]),1:length(sample_size))
 
-plot(log_sample_size, mean_var_correlation, ribbon = std_var_correlation, label=false)
+plot(log_sample_size, g2_residual_mean_by_samples, ribbon = g2_residual_std_by_samples, label=false)
+hline!([1/light_source.n], label = L"\frac{1}{n}", color=:red)
 xlabel!(L"\log_{10}(\mathrm{sample~size})")
-ylabel!(L"\mathrm{Normalized~variance~of~}I(t)I(t+\tau)")
+ylabel!(L"\mathrm{residuals~of~}g^{(2)}(\tau)")
 copy_ticks()
 
-savefig(plotsdir("classical_variance_scaling.svg"))
+savefig(plotsdir("g2_residual_scaling.svg"))
 
 plot!()
-

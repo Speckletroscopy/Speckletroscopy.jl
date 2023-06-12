@@ -25,6 +25,9 @@ log_sample_size = collect(1.0:0.1:3.0)
 sample_size = 10 .^log_sample_size
 sample_size = round.(Int,sample_size)
 
+# mean intensity
+ibar = light_source.n*sum(x->real(x*conj(x)),light_source.Em)
+
 cut_low = 100 # low cut on τ to get beyond standard correlated regime
 
 ninstances = 100 
@@ -38,8 +41,6 @@ correlation_var_array = SharedArray{Float64}(length(sample_size),ninstances)
     efield_vals = map(t->eFieldT(t,e_field),time_vals)
     intensity_vals = map(et->intensity(et),efield_vals)
 
-    # mean intensity
-    ibar = mean(intensity_vals)
 
     normalized_mean_correlation_var = ones(length(sample_size))
     # iterate over sample size
